@@ -1,0 +1,1 @@
+# amigopay2.0
