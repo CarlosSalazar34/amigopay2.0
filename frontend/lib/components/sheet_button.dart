@@ -2,48 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/form_movements.dart';
 
 class SheetButton extends StatelessWidget {
-  final List<Map<String, dynamic>> movimientos;
+  final Function(Map<String, dynamic>)
+  onAdd; // Recibe la función desde la pantalla principal
 
-  const SheetButton({super.key, required this.movimientos});
-
-  // Nota: Cambié a StatelessWidget porque el botón en sí no
-  // parece necesitar manejar estado interno.
+  const SheetButton({super.key, required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: () => _showMySheet(context),
-      icon: const Icon(Icons.add_circle_outline, size: 22),
+      icon: const Icon(Icons.add_circle_outline),
       label: const Text('Agregar movimiento'),
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.blueAccent,
-        backgroundColor: Colors.white,
-        elevation: 2,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Bordes más modernos
-          side: const BorderSide(color: Colors.blueAccent, width: 1),
-        ),
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
-        minimumSize: Size(900, 60),
-      ),
     );
   }
 
   void _showMySheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Útil si el teclado tapa el input
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => const SizedBox(
+      builder: (context) => SizedBox(
         height: 500,
-        child: FormMovement(),
-        // child: Center(child: Text("Formulario de movimiento")),
+        child: FormMovement(onSave: onAdd), // Pasamos la función
       ),
     );
   }
