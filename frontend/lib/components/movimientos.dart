@@ -1,32 +1,26 @@
 import 'package:flutter/material.dart';
 
 class MovimientosList extends StatelessWidget {
-  final List<Map<String, dynamic>> movimientos = [
-    {'titulo': 'Pago de nómina', 'monto': 1500.0, 'tipo': 'ingreso'},
-    {'titulo': 'Suscripción Netflix', 'monto': -12.0, 'tipo': 'gasto'},
-    {'titulo': 'Compra Supermercado', 'monto': -85.50, 'tipo': 'gasto'},
-    {'titulo': 'Venta Laptop', 'monto': 400.0, 'tipo': 'ingreso'},
-    {'titulo': 'Factura Luz', 'monto': -45.0, 'tipo': 'gasto'},
-    {'titulo': 'Gimnasio', 'monto': -30.0, 'tipo': 'gasto'},
-  ];
+  // 1. Declarar la variable que va a recibir los datos
+  final List<Map<String, dynamic>> movimientos;
 
-  MovimientosList({super.key});
+  // 2. Corregir el constructor
+  const MovimientosList({super.key, required this.movimientos});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      shrinkWrap: true, // IMPORTANTE: Ajusta el ListView al contenido
-      physics:
-          const NeverScrollableScrollPhysics(), // IMPORTANTE: El scroll lo hace el homepage
-      padding: EdgeInsets.zero, // Quita paddings internos extra
-      itemCount: movimientos.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: movimientos.length, // Se usa la variable declarada arriba
       itemBuilder: (context, index) {
         final item = movimientos[index];
         final esIngreso = item['tipo'] == 'ingreso';
 
         return Card(
-          elevation: 0, // Un toque más moderno (plano)
-          color: Colors.grey[100], // Fondo sutil
+          elevation: 0,
+          color: Colors.grey[100],
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),

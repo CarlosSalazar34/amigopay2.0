@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/form_movements.dart';
 
 class SheetButton extends StatelessWidget {
-  const SheetButton({super.key});
+  final List<Map<String, dynamic>> movimientos;
+
+  const SheetButton({super.key, required this.movimientos});
 
   // Nota: Cambié a StatelessWidget porque el botón en sí no
   // parece necesitar manejar estado interno.
@@ -39,7 +42,8 @@ class SheetButton extends StatelessWidget {
       ),
       builder: (context) => const SizedBox(
         height: 500,
-        child: Center(child: Text("Formulario de movimiento")),
+        child: FormMovement(),
+        // child: Center(child: Text("Formulario de movimiento")),
       ),
     );
   }
