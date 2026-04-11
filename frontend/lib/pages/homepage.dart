@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/amount_card.dart';
+import 'package:frontend/components/sheet_button.dart';
 
 Widget homepage() {
   return Container(
@@ -23,6 +24,7 @@ Widget homepage() {
           ),
         ),
         AmountCard(amount: 12220.03),
+        SheetButton(),
       ],
     ),
   );

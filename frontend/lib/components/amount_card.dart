@@ -14,7 +14,7 @@ class _AmountCardState extends State<AmountCard> {
     return Container(
       height: 250,
       padding: const EdgeInsets.all(15),
-      margin: const EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
