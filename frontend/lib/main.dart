@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Lista de widgets para el cuerpo de la app
   // Nota: Cambié 'homepage()' por 'HomePage()' siguiendo la convención de Mayúsculas
   final List<Widget> _pages = [
-    homepage(),
+    HomePage(),
     const Center(child: Text("Usuario", style: TextStyle(fontSize: 20))),
   ];
 
