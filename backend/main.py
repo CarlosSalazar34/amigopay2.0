@@ -8,6 +8,16 @@ import models, database
 # Create database tables
 models.Base.metadata.create_all(bind=database.engine)
 
+# Fix schema (ensure user_id columns exist)
+from sqlalchemy import text
+with database.engine.connect() as conn:
+    try:
+        conn.execute(text("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);"))
+        conn.execute(text("ALTER TABLE notifications ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);"))
+        conn.commit()
+    except Exception as e:
+        print(f"Schema update notice: {e}")
+
 app = FastAPI(title="AmigoPay API")
 
 # Add CORS middleware
