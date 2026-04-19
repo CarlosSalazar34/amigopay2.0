@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FormMovement extends StatefulWidget {
-  final Function(Map<String, dynamic>) onSave; // Callback para devolver el dato
+  final Function(Map<String, dynamic>) onSave;
 
   const FormMovement({super.key, required this.onSave});
 
@@ -13,6 +14,7 @@ class _FormMovementState extends State<FormMovement> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _montoController = TextEditingController();
   String tipoPago = "ingreso";
+
   @override
   void dispose() {
     _nombreController.dispose();
@@ -23,71 +25,97 @@ class _FormMovementState extends State<FormMovement> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Nuevo Movimiento",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          const SizedBox(height: 16),
+          Text(
+            "Detalles del Movimiento",
+            style: GoogleFonts.outfit(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1A237E),
+            ),
           ),
+          const SizedBox(height: 24),
           TextField(
             controller: _nombreController,
-            decoration: const InputDecoration(labelText: "Concepto"),
+            decoration: InputDecoration(
+              labelText: "Concepto",
+              hintText: "Ej. Pago de Alquiler",
+              prefixIcon: const Icon(Icons.description_outlined),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
           ),
+          const SizedBox(height: 16),
           TextField(
             controller: _montoController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: "Monto"),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: "Monto",
+              hintText: "0.00",
+              prefixIcon: const Icon(Icons.attach_money_rounded),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             value: tipoPago,
-            // Estilo del input (el borde y fondo)
             decoration: InputDecoration(
-              labelText: "Tipo de movimiento",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+              labelText: "Tipo de Movimiento",
+              prefixIcon: const Icon(Icons.swap_vert_rounded),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
-              filled: true,
-              fillColor: Colors.grey[100],
-              prefixIcon: const Icon(Icons.swap_vert),
             ),
-            // Estilo del menú desplegable
-            dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            icon: const Icon(
-              Icons.arrow_drop_down_circle_outlined,
-              color: Colors.blue,
-            ),
-            // Estilo del texto seleccionado
-            style: const TextStyle(color: Colors.black, fontSize: 16),
             items: const [
-              DropdownMenuItem(value: "ingreso", child: Text("Ingreso")),
-              DropdownMenuItem(value: "gasto", child: Text("Gasto")),
+              DropdownMenuItem(value: "ingreso", child: Text("Ingreso (+)")),
+              DropdownMenuItem(value: "gasto", child: Text("Gasto (-)")),
             ],
             onChanged: (value) => setState(() => tipoPago = value!),
           ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              // 1. Capturamos y validamos
-              String nombre = _nombreController.text;
-              double? monto = double.tryParse(_montoController.text) ?? 0.0;
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: () {
+                String nombre = _nombreController.text;
+                double? monto = double.tryParse(_montoController.text) ?? 0.0;
 
-              // 2. Creamos el mapa con el formato que espera tu lista
-              Map<String, dynamic> nuevoMov = {
-                "titulo": nombre,
-                "monto": monto,
-                "tipo": tipoPago,
-              };
-
-              // 3. Ejecutamos el callback que viene de HomePage
-              widget.onSave(nuevoMov);
-
-              // 4. Cerramos el modal
-              Navigator.pop(context);
-            },
-            child: const Text("Guardar"),
+                if (nombre.isNotEmpty && monto > 0) {
+                  Map<String, dynamic> nuevoMov = {
+                    "titulo": nombre,
+                    "monto": monto,
+                    "tipo": tipoPago,
+                  };
+                  widget.onSave(nuevoMov);
+                  Navigator.pop(context);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1A237E),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+              child: Text(
+                "Guardar Movimiento",
+                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
           ),
         ],
       ),

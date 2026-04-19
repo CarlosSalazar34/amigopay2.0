@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend/components/amount_card.dart';
 import 'package:frontend/components/movimientos.dart';
 import 'package:frontend/components/sheet_button.dart';
+import 'package:frontend/pages/notifications_page.dart';
+import 'package:frontend/services/api_service.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,51 +15,155 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // La lista ahora es parte del estado
-  final List<Map<String, dynamic>> movimientos = [
-    {'titulo': 'Pago de nómina', 'monto': 1500.0, 'tipo': 'ingreso'},
-    {'titulo': 'Suscripción Netflix', 'monto': -12.0, 'tipo': 'gasto'},
-    // ... tus otros datos
-  ];
+  final ApiService apiService = ApiService();
+  List<Map<String, dynamic>> movimientos = [];
+  double balance = 0.0;
+  bool isLoading = true;
+  String userName = 'Recuperando...';
+  bool hasUnreadNotifications = false;
 
-  // Función para agregar un movimiento y actualizar la pantalla
-  void _agregarMovimiento(Map<String, dynamic> nuevo) {
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    _loadUser();
+  }
+
+  void _loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      movimientos.add(nuevo);
+      userName = prefs.getString('user_name') ?? 'Usuario';
     });
+  }
+
+  Future<void> _loadData() async {
+    setState(() => isLoading = true);
+    final fetchedMovimientos = await apiService.getTransactions();
+    final fetchedBalance = await apiService.getBalance();
+    final fetchedNotifs = await apiService.getNotifications();
+    
+    setState(() {
+      movimientos = fetchedMovimientos.reversed.toList();
+      balance = fetchedBalance;
+      hasUnreadNotifications = fetchedNotifs.any((n) => n['leido'] == 0);
+      isLoading = false;
+    });
+  }
+
+  Future<void> _agregarMovimiento(Map<String, dynamic> nuevo) async {
+    await apiService.createTransaction(nuevo);
+    _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                'Carlos Salazar',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        displacement: 80,
+        color: const Color(0xFF1A237E),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              pinned: false,
+              backgroundColor: const Color(0xFFF5F7FA),
+              surfaceTintColor: Colors.transparent,
+              title: Text(
+                'Hola, $userName',
+                style: GoogleFonts.outfit(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1A237E),
+                ),
               ),
-              const SizedBox(height: 20),
-              const AmountCard(amount: 12220.03),
-              const SizedBox(height: 20),
-
-              // Pasamos la función de agregar al botón
-              SheetButton(onAdd: _agregarMovimiento),
-
-              const SizedBox(height: 30),
-              const Text(
-                'Movimientos recientes',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              actions: [
+                Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                        ).then((_) => _loadData()); // Refresh when coming back
+                      },
+                      icon: const Icon(Icons.notifications_outlined, size: 28),
+                    ),
+                    if (hasUnreadNotifications)
+                      Positioned(
+                        right: 12,
+                        top: 12,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    isLoading 
+                      ? const Center(child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: CircularProgressIndicator(),
+                        ))
+                      : AmountCard(amount: balance),
+                    const SizedBox(height: 24),
+                    Text(
+                      "Acciones Rápidas",
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF1A237E),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SheetButton(onAdd: _agregarMovimiento),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Actividad Reciente',
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1A237E),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('Ver todo'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    isLoading 
+                      ? const Center(child: Padding(
+                          padding: EdgeInsets.only(top: 40),
+                          child: CircularProgressIndicator(),
+                        ))
+                      : MovimientosList(movimientos: movimientos),
+                    const SizedBox(height: 100), // Spacing for bottom
+                  ],
+                ),
               ),
-              MovimientosList(movimientos: movimientos),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
