@@ -2,10 +2,18 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Database Connection
-# Using Railway PostgreSQL as the ONLY database (as requested by user)
-DATABASE_URL = "postgresql://postgres:KChSdJKxsnIJUtEkiiXGKYnHPRFdFLQP@roundhouse.proxy.rlwy.net:26362/railway"
+# Using Railway PostgreSQL (URL hidden in environment variable)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    # Fallback to a clear error if no URL is provided
+    raise ValueError("No DATABASE_URL found in environment variables")
 
 # Ensure SQLAlchemy uses correct prefix
 if DATABASE_URL.startswith("postgres://"):

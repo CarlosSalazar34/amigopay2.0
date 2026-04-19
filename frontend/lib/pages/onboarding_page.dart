@@ -60,10 +60,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        _data[index]['icon']!,
-                        style: const TextStyle(fontSize: 100),
-                      ),
+                      index == 0
+                          ? Image.asset(
+                              'assets/logo.png',
+                              height: 150,
+                            )
+                          : Text(
+                              _data[index]['icon']!,
+                              style: const TextStyle(fontSize: 100),
+                            ),
                       const SizedBox(height: 40),
                       Text(
                         _data[index]['title']!,
