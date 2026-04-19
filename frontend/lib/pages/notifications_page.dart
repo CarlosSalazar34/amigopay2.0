@@ -22,11 +22,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> _loadNotifications() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id') ?? 0;
     
     final data = await _apiService.getNotifications(userId);
+    if (!mounted) return;
     setState(() {
       _notifications = data;
       _isLoading = false;

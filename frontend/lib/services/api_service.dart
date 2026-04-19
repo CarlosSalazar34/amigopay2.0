@@ -114,8 +114,9 @@ class ApiService {
   Future<void> deleteUser(int userId) async {
     try {
       final response = await http.delete(Uri.parse('$baseUrl/users/$userId'));
-      if (response.statusCode != 200) {
-        throw Exception('Failed to delete user');
+      // If 404, the user is already gone from the DB, so we consider it a success
+      if (response.statusCode != 200 && response.statusCode != 404) {
+        throw Exception('Failed to delete user: ${response.statusCode}');
       }
     } catch (e) {
       print('Error deleting user: $e');

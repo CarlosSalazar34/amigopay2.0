@@ -56,7 +56,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         );
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

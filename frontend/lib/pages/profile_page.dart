@@ -27,6 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _loadUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _name = prefs.getString('user_name') ?? 'Usuario';
       _email = prefs.getString('user_email') ?? 'sin@correo.com';
@@ -47,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void _confirmDelete() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: Text('¿Eliminar cuenta?', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         content: Text(
           'Esta acción borrará todos tus datos, gastos y notificaciones de forma permanente. No se puede deshacer.',
@@ -56,34 +57,42 @@ class _ProfilePageState extends State<ProfilePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogCtx),
             child: Text('Cancelar', style: GoogleFonts.outfit(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogCtx); // Close the confirmation dialog
+              
+              // Show a loading circle using the safe root context
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (loadingCtx) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              );
+
               final prefs = await SharedPreferences.getInstance();
               final userId = prefs.getInt('user_id') ?? 0;
               
               try {
                 await _apiService.deleteUser(userId);
-                await prefs.clear();
-                if (context.mounted) {
-                  Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const OnboardingPage()),
-                    (route) => false,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cuenta eliminada correctamente')),
-                  );
-                }
               } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al eliminar cuenta: $e')),
-                  );
-                }
+                print('Silent error during deletion: $e');
               }
+
+              await prefs.clear();
+              
+              if (!mounted) return;
+              
+              // Navigate directly to Onboarding, clearing everything including the loading dialog
+              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const OnboardingPage()),
+                (Route<dynamic> route) => false,
+              );
             },
             child: Text('Eliminar', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
           ),

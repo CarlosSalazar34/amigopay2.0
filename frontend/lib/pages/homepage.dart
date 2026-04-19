@@ -31,12 +31,14 @@ class _HomePageState extends State<HomePage> {
 
   void _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       userName = prefs.getString('user_name') ?? 'Usuario';
     });
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => isLoading = true);
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id') ?? 0;
@@ -45,6 +47,7 @@ class _HomePageState extends State<HomePage> {
     final fetchedBalance = await apiService.getBalance(userId);
     final fetchedNotifs = await apiService.getNotifications(userId);
     
+    if (!mounted) return;
     setState(() {
       movimientos = fetchedMovimientos.reversed.toList();
       balance = fetchedBalance;
