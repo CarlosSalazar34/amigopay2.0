@@ -5,6 +5,8 @@ import 'package:amigopay/pages/onboarding_page.dart';
 
 import 'package:amigopay/pages/notifications_page.dart';
 
+import 'package:amigopay/services/api_service.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -15,6 +17,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String _name = 'Cargando...';
   String _email = '...';
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -40,6 +43,55 @@ class _ProfilePageState extends State<ProfilePage> {
         (route) => false,
       );
     }
+  }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¿Eliminar cuenta?', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        content: Text(
+          'Esta acción borrará todos tus datos, gastos y notificaciones de forma permanente. No se puede deshacer.',
+          style: GoogleFonts.outfit(),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar', style: GoogleFonts.outfit(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final prefs = await SharedPreferences.getInstance();
+              final userId = prefs.getInt('user_id') ?? 0;
+              
+              try {
+                await _apiService.deleteUser(userId);
+                await prefs.clear();
+                if (context.mounted) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OnboardingPage()),
+                    (route) => false,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Cuenta eliminada correctamente')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al eliminar cuenta: $e')),
+                  );
+                }
+              }
+            },
+            child: Text('Eliminar', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -126,14 +178,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _logout,
-                      icon: const Icon(Icons.logout_rounded, color: Colors.red),
-                      label: const Text('Cerrar Sesión', style: TextStyle(color: Colors.red)),
+                      icon: const Icon(Icons.logout_rounded, color: Colors.blue),
+                      label: const Text('Cerrar Sesión', style: TextStyle(color: Colors.blue)),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 15),
-                        side: const BorderSide(color: Colors.red),
+                        side: const BorderSide(color: Colors.blue),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: _confirmDelete,
+                      icon: const Icon(Icons.delete_forever_rounded, color: Colors.red),
+                      label: const Text('Eliminar Cuenta', style: TextStyle(color: Colors.red)),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                     ),
                   ),

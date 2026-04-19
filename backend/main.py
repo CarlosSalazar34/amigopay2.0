@@ -80,3 +80,17 @@ def create_user(user: models.UserCreate, db: Session = Depends(database.get_db))
     db.commit()
     db.refresh(db_user)
     return db_user
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(database.get_db)):
+    # Delete associated transactions
+    db.query(models.DBTransaction).filter(models.DBTransaction.user_id == user_id).delete()
+    # Delete associated notifications
+    db.query(models.DBNotification).filter(models.DBNotification.user_id == user_id).delete()
+    # Delete the user
+    user = db.query(models.DBUser).filter(models.DBUser.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
+    return {"message": "Usuario eliminado correctamente"}

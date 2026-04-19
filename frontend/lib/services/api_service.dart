@@ -110,4 +110,16 @@ class ApiService {
       return 0.0;
     }
   }
+
+  Future<void> deleteUser(int userId) async {
+    try {
+      final response = await http.delete(Uri.parse('$baseUrl/users/$userId'));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete user');
+      }
+    } catch (e) {
+      print('Error deleting user: $e');
+      throw e;
+    }
+  }
 }
