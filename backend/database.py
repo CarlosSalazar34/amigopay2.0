@@ -3,22 +3,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Hybrid Database Connection
-# If DATABASE_URL is set (Railway/Vercel), use PostgreSQL. Otherwise, use SQLite.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./amigopay.db")
+# Database Connection
+# Using Railway PostgreSQL as the ONLY database (as requested by user)
+DATABASE_URL = "postgresql://postgres:KChSdJKxsnIJUtEkiiXGKYnHPRFdFLQP@roundhouse.proxy.rlwy.net:26362/railway"
 
-# SQLAlchemy requires 'postgresql://' instead of 'postgres://'
+# Ensure SQLAlchemy uses correct prefix
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-is_sqlite = DATABASE_URL.startswith("sqlite")
-
-connect_args = {"check_same_thread": False} if is_sqlite else {}
-
-engine = create_engine(
-    DATABASE_URL, 
-    connect_args=connect_args
-)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
