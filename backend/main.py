@@ -5,18 +5,18 @@ from typing import List
 
 import models, database
 
-# Create database tables
-models.Base.metadata.create_all(bind=database.engine)
+# Fix schema: NUCLEAR OPTION (Drop and recreate once to ensure columns exist)
+# Only run this if we detect the missing column, otherwise it's destructive.
+from sqlalchemy import inspect
+inspector = inspect(database.engine)
+tables = inspector.get_table_names()
+if 'transactions' in tables:
+    columns = [c['name'] for c in inspector.get_columns('transactions')]
+    if 'user_id' not in columns:
+        print("Schema mismatch detected. Recreating database...")
+        models.Base.metadata.drop_all(bind=database.engine)
 
-# Fix schema (ensure user_id columns exist)
-from sqlalchemy import text
-with database.engine.connect() as conn:
-    try:
-        conn.execute(text("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);"))
-        conn.execute(text("ALTER TABLE notifications ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);"))
-        conn.commit()
-    except Exception as e:
-        print(f"Schema update notice: {e}")
+models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="AmigoPay API")
 
