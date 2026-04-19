@@ -6,9 +6,9 @@ class ApiService {
   // Use http://localhost:8000 for iOS Simulator or Web
   static const String baseUrl = 'https://amigopay-backend.vercel.app';
 
-  Future<List<Map<String, dynamic>>> getTransactions() async {
+  Future<List<Map<String, dynamic>>> getTransactions(int userId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/transactions'));
+      final response = await http.get(Uri.parse('$baseUrl/transactions?user_id=$userId'));
       if (response.statusCode == 200) {
         return List<Map<String, dynamic>>.from(json.decode(response.body));
       } else {
@@ -70,9 +70,9 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getNotifications() async {
+  Future<List<Map<String, dynamic>>> getNotifications(int userId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/notifications'));
+      final response = await http.get(Uri.parse('$baseUrl/notifications?user_id=$userId'));
       if (response.statusCode == 200) {
         return List<Map<String, dynamic>>.from(json.decode(response.body));
       } else {
@@ -96,9 +96,9 @@ class ApiService {
     }
   }
 
-  Future<double> getBalance() async {
+  Future<double> getBalance(int userId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/balance'));
+      final response = await http.get(Uri.parse('$baseUrl/balance?user_id=$userId'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return (data['balance'] as num).toDouble();

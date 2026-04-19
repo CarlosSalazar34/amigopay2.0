@@ -37,8 +37,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       if (response.isNotEmpty) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_name', _nameController.text);
-        await prefs.setString('user_email', _emailController.text);
+        await prefs.setInt('user_id', response['id']);
+        await prefs.setString('user_name', response['nombre']);
+        await prefs.setString('user_email', response['email']);
         await prefs.setBool('is_registered', true);
 
         if (context.mounted) {

@@ -12,7 +12,6 @@ class DBUser(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    # password could be added later for real security
 
 class DBTransaction(Base):
     __tablename__ = "transactions"
@@ -21,6 +20,7 @@ class DBTransaction(Base):
     titulo = Column(String, index=True)
     monto = Column(Float)
     tipo = Column(String)  # 'ingreso' or 'gasto'
+    user_id = Column(Integer, ForeignKey("users.id"))
 
 class DBNotification(Base):
     __tablename__ = "notifications"
@@ -29,6 +29,7 @@ class DBNotification(Base):
     titulo = Column(String)
     mensaje = Column(String)
     leido = Column(Integer, default=0) # 0 for false, 1 for true
+    user_id = Column(Integer, ForeignKey("users.id"))
 
 # --- Pydantic Schemas ---
 
@@ -36,6 +37,7 @@ class TransactionBase(BaseModel):
     titulo: str
     monto: float
     tipo: str
+    user_id: int
 
 class TransactionCreate(TransactionBase):
     pass
@@ -64,6 +66,7 @@ class NotificationSchema(BaseModel):
     titulo: str
     mensaje: str
     leido: int
+    user_id: int
 
     class Config:
         from_attributes = True

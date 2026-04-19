@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amigopay/services/api_service.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -22,7 +23,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Future<void> _loadNotifications() async {
     setState(() => _isLoading = true);
-    final data = await _apiService.getNotifications();
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id') ?? 0;
+    
+    final data = await _apiService.getNotifications(userId);
     setState(() {
       _notifications = data;
       _isLoading = false;

@@ -26,8 +26,8 @@ async def root():
     return {"message": "funcionando ✅"}
 
 @app.get("/transactions", response_model=List[models.TransactionSchema])
-def get_transactions(db: Session = Depends(database.get_db)):
-    return db.query(models.DBTransaction).all()
+def get_transactions(user_id: int, db: Session = Depends(database.get_db)):
+    return db.query(models.DBTransaction).filter(models.DBTransaction.user_id == user_id).all()
 
 @app.post("/transactions", response_model=models.TransactionSchema)
 def create_transaction(transaction: models.TransactionCreate, db: Session = Depends(database.get_db)):
@@ -37,7 +37,11 @@ def create_transaction(transaction: models.TransactionCreate, db: Session = Depe
     # Auto-generate notification
     notif_title = "Nuevo Ingreso" if transaction.tipo == "ingreso" else "Nuevo Gasto"
     notif_msg = f"Has registrado un {transaction.tipo} de ${transaction.monto} por: {transaction.titulo}"
-    db_notif = models.DBNotification(titulo=notif_title, mensaje=notif_msg)
+    db_notif = models.DBNotification(
+        titulo=notif_title, 
+        mensaje=notif_msg,
+        user_id=transaction.user_id
+    )
     db.add(db_notif)
     
     db.commit()
@@ -45,8 +49,8 @@ def create_transaction(transaction: models.TransactionCreate, db: Session = Depe
     return db_transaction
 
 @app.get("/notifications", response_model=List[models.NotificationSchema])
-def get_notifications(db: Session = Depends(database.get_db)):
-    return db.query(models.DBNotification).order_by(models.DBNotification.id.desc()).all()
+def get_notifications(user_id: int, db: Session = Depends(database.get_db)):
+    return db.query(models.DBNotification).filter(models.DBNotification.user_id == user_id).order_by(models.DBNotification.id.desc()).all()
 
 @app.patch("/notifications/{notif_id}", response_model=models.NotificationSchema)
 def update_notification(notif_id: int, update: models.NotificationUpdate, db: Session = Depends(database.get_db)):
@@ -59,20 +63,12 @@ def update_notification(notif_id: int, update: models.NotificationUpdate, db: Se
     return db_notif
 
 @app.get("/balance")
-def get_balance(db: Session = Depends(database.get_db)):
-    transactions = db.query(models.DBTransaction).all()
+def get_balance(user_id: int, db: Session = Depends(database.get_db)):
+    transactions = db.query(models.DBTransaction).filter(models.DBTransaction.user_id == user_id).all()
     balance = sum(t.monto if t.tipo == 'ingreso' else -t.monto for t in transactions)
     return {"balance": balance}
 
 # --- User Endpoints ---
-
-@app.get("/user", response_model=models.UserSchema)
-def get_user(email: str = "carlos@amigopay.com", db: Session = Depends(database.get_db)):
-    user = db.query(models.DBUser).filter(models.DBUser.email == email).first()
-    if not user:
-        # Fallback for now if no user registered
-        return {"id": 0, "nombre": "Invitado", "email": email}
-    return user
 
 @app.post("/users", response_model=models.UserSchema)
 def create_user(user: models.UserCreate, db: Session = Depends(database.get_db)):

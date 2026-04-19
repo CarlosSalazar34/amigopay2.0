@@ -38,9 +38,12 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadData() async {
     setState(() => isLoading = true);
-    final fetchedMovimientos = await apiService.getTransactions();
-    final fetchedBalance = await apiService.getBalance();
-    final fetchedNotifs = await apiService.getNotifications();
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id') ?? 0;
+
+    final fetchedMovimientos = await apiService.getTransactions(userId);
+    final fetchedBalance = await apiService.getBalance(userId);
+    final fetchedNotifs = await apiService.getNotifications(userId);
     
     setState(() {
       movimientos = fetchedMovimientos.reversed.toList();
@@ -51,6 +54,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _agregarMovimiento(Map<String, dynamic> nuevo) async {
+    final prefs = await SharedPreferences.getInstance();
+    nuevo['user_id'] = prefs.getInt('user_id') ?? 0;
     await apiService.createTransaction(nuevo);
     _loadData();
   }
