@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:frontend/pages/homepage.dart';
-import 'package:frontend/pages/onboarding_page.dart';
-import 'package:frontend/pages/registration_page.dart';
-import 'package:frontend/pages/profile_page.dart';
+import 'package:amigopay/pages/homepage.dart';
+import 'package:amigopay/pages/onboarding_page.dart';
+import 'package:amigopay/pages/registration_page.dart';
+import 'package:amigopay/pages/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

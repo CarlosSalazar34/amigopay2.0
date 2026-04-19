@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/components/amount_card.dart';
-import 'package:frontend/components/movimientos.dart';
-import 'package:frontend/components/sheet_button.dart';
-import 'package:frontend/pages/notifications_page.dart';
-import 'package:frontend/services/api_service.dart';
+import 'package:amigopay/components/amount_card.dart';
+import 'package:amigopay/components/movimientos.dart';
+import 'package:amigopay/components/sheet_button.dart';
+import 'package:amigopay/pages/notifications_page.dart';
+import 'package:amigopay/services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

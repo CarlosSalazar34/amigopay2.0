@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:frontend/pages/registration_page.dart';
+import 'package:amigopay/pages/registration_page.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:frontend/components/form_movements.dart';
+import 'package:amigopay/components/form_movements.dart';
 
 class SheetButton extends StatelessWidget {
   final Function(Map<String, dynamic>) onAdd;

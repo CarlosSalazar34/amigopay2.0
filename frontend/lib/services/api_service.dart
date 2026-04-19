@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class ApiService {
   // Use http://10.0.2.2:8000 for Android Emulator
   // Use http://localhost:8000 for iOS Simulator or Web
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'https://amigopay-backend.vercel.app';
 
   Future<List<Map<String, dynamic>>> getTransactions() async {
     try {
