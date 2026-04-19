@@ -37,8 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // Clear all data (onboarding, registration, etc.)
     if (context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
+      Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const OnboardingPage()),
         (route) => false,
       );
@@ -70,8 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 await _apiService.deleteUser(userId);
                 await prefs.clear();
                 if (context.mounted) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
+                  Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const OnboardingPage()),
                     (route) => false,
                   );
