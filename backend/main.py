@@ -21,6 +21,10 @@ app.add_middleware(
 
 # --- Transactions Endpoints ---
 
+@app.get("/")
+async def root():
+    return {"message": "funcionando ✅"}
+
 @app.get("/transactions", response_model=List[models.TransactionSchema])
 def get_transactions(db: Session = Depends(database.get_db)):
     return db.query(models.DBTransaction).all()
